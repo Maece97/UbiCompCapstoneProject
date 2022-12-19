@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <title>FootUnLocker</title>
+  </head>
+  <body>
+    <script src="https://www.espruino.com/js/uart.js"></script>
+    <script>
+      var connectionOut = undefined;
+      var lastPin = " ";
+
+      function parseData(data) {
+        if (data.includes("pin: ") && data.includes("status: ")) {
+          console.log("PIN: " + data);
+          pin = data.substring(8, data.indexOf("s") - 1);
+          if (pin !== lastPin) {
+            document.getElementById("pin").innerHTML = data.substring(
+              8,
+              data.indexOf("s") - 1
+            );
+            lastPin = pin;
+          }
+        }
+        if (data.includes("status: ")) {
+          console.log("STATUS: " + data);
+          if (data.includes("status: true")) {
+            console.log("STATUS TRUE");
+            document.getElementById("pin").style.color = "green";
+          } else {
+            document.getElementById("pin").style.color = "red";
+          }
+        }
+      }
+
+      UART.connect(function (connection) {
+        connectionOut = connection;
+        if (!connection) throw "Error!";
+        connection.on("data", parseData);
+        //connection.on("close", console.log);
+      });
+    </script>
+
+    <div style="margin-top: 250">
+      <center>
+        <span style="font-size: 180pt">PIN: </span
+        ><span id="pin" style="font-size: 180pt; color: red"></span>
+      </center>
+    </div>
+  </body>
+</html>
